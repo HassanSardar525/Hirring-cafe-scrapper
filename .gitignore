@@ -1,0 +1,18 @@
+# Python bytecode cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment folder
+.venv/
+env/
+ENV/
+venv/
+
+# Scraper Output Tracker Files (Keeps your data local)
+*.xlsx
+*.csv
+
+# IDE / Editor configurations
+.vscode/
+.idea/
