@@ -187,16 +187,22 @@ def save_to_excel_with_gap(new_data, file_path):
     cols_order = ["Number", "Date", "Platform", "Site", "Apply Link", "Company Name", "Job Title", "Company Link", "Job Description", "Tech Stack"]
     
     if os.path.exists(file_path):
+        # 1. Read existing rows to calculate the next sequence index
         existing_df = pd.read_excel(file_path, sheet_name=sheet_name)
         last_num = existing_df['Number'].dropna().max() if 'Number' in existing_df.columns else 0
         new_df.insert(0, 'Number', range(int(last_num) + 1, int(last_num) + 1 + len(new_df)))
         new_df = new_df.reindex(columns=cols_order, fill_value="")
         
+        # 2. Get the physical end row height using openpyxl directly
+        temp_book = load_workbook(file_path)
+        start_row = temp_book[sheet_name].max_row + 2  # leaves our 1-row blank spacing gap
+        temp_book.close()
+        
+        # 3. Append cleanly without modifying writer.book properties
         with pd.ExcelWriter(file_path, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
-            writer.book = load_workbook(file_path)
-            start_row = writer.book[sheet_name].max_row + 2
             new_df.to_excel(writer, startrow=start_row, index=False, header=False, sheet_name=sheet_name)
     else:
+        # Initial file structure initialization fallback
         new_df.insert(0, 'Number', range(1, 1 + len(new_df)))
         new_df = new_df.reindex(columns=cols_order, fill_value="")
         new_df.to_excel(file_path, index=False, sheet_name=sheet_name)
@@ -219,7 +225,12 @@ if __name__ == "__main__":
 
     # Scraper Task Iteration Queue Matrix
     tasks = [
-        {"tech": "Machine learning engineer", "lang": ["English"], "remote": True, "country": "US"}
+        {"tech": "Python", "lang": ["English"], "remote": True, "country": "US"},
+        {"tech": "React", "lang": ["English"], "remote": True, "country": "US"},
+        {"tech": "Data Analyst", "lang": ["English"], "remote": True, "country": "US"},
+        {"tech": "Next.js", "lang": ["English"], "remote": True, "country": "US"},
+        {"tech": ".NET", "lang": ["English"], "remote": True, "country": "US"}
+        
     ]
 
     for task in tasks:
